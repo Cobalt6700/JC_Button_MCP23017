@@ -7,6 +7,7 @@
 #define JC_BUTTON_H_INCLUDED
 
 #include <Arduino.h>
+#include <MCP23017.h>
 
 class Button
 {
@@ -60,6 +61,7 @@ class Button
         uint32_t lastChange();
 
     private:
+        ~MCP23X17& mcp_register;
         uint8_t m_pin;          // arduino pin number connected to button
         uint32_t m_dbTime;      // debounce time (ms)
         bool m_puEnable;        // internal pullup resistor enabled

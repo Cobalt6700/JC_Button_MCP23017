@@ -10,8 +10,8 @@
 /-----------------------------------------------------------------------*/
 void Button::begin()
 {
-    mcp.pinMode(m_pin, m_puEnable ? INPUT_PULLUP : INPUT);
-    m_state = mcp.digitalRead(m_pin);
+    mcp_register.pinMode(m_pin, m_puEnable ? INPUT_PULLUP : INPUT);
+    m_state = mcp_register.digitalRead(m_pin);
     if (m_invert) m_state = !m_state;
     m_time = millis();
     m_lastState = m_state;
@@ -26,7 +26,7 @@ void Button::begin()
 bool Button::read()
 {
     uint32_t ms = millis();
-    bool pinVal = mcp.digitalRead(m_pin);
+    bool pinVal = mcp_register.digitalRead(m_pin);
     if (m_invert) pinVal = !pinVal;
     if (ms - m_lastChange < m_dbTime)
     {
