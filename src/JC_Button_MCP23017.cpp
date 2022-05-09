@@ -1,5 +1,5 @@
-// Arduino Button Library
-// https://github.com/JChristensen/JC_Button
+// Arduino Button Library for MCP23017
+// Code refactored from https://github.com/JChristensen/JC_Button
 // Copyright (C) 2018 by Jack Christensen and licensed under
 // GNU GPL v3.0, https://www.gnu.org/licenses/gpl.html
 
@@ -8,39 +8,39 @@
 /*----------------------------------------------------------------------*
 / initialize a Button object and the pin it's connected to.             *
 /-----------------------------------------------------------------------*/
-void Button::begin()
+void MCP23017_Button::begin()
 {
-    mcp_register.pinMode(m_pin, m_puEnable ? INPUT_PULLUP : INPUT);
-    m_state = mcp_register.digitalRead(m_pin);
-    if (m_invert) m_state = !m_state;
-    m_time = millis();
-    m_lastState = m_state;
-    m_changed = false;
-    m_lastChange = m_time;
+    mcp_register.pinMode(mcp_pin, mcp_puEnable ? INPUT_PULLUP : INPUT, mcp_invert);
+    mcp_state = mcp_register.digitalRead(mcp_pin);
+    //if (mcp_invert) mcp_state = !mcp_state;
+    mcp_time = millis();
+    mcp_lastState = mcp_state;
+    mcp_changed = false;
+    mcp_lastChange = mcp_time;
 }
 
 /*----------------------------------------------------------------------*
 / returns the state of the button, true if pressed, false if released.  *
 / does debouncing, captures and maintains times, previous state, etc.   *
 /-----------------------------------------------------------------------*/
-bool Button::read()
+bool MCP23017_Button::read()
 {
     uint32_t ms = millis();
-    bool pinVal = mcp_register.digitalRead(m_pin);
-    if (m_invert) pinVal = !pinVal;
-    if (ms - m_lastChange < m_dbTime)
+    bool pinVal = mcp_register.digitalRead(mcp_pin);
+    //if (mcp_invert) pinVal = !pinVal;
+    if (ms - mcp_lastChange < mcp_dbTime)
     {
-        m_changed = false;
+        mcp_changed = false;
     }
     else
     {
-        m_lastState = m_state;
-        m_state = pinVal;
-        m_changed = (m_state != m_lastState);
-        if (m_changed) m_lastChange = ms;
+        mcp_lastState = mcp_state;
+        mcp_state = pinVal;
+        mcp_changed = (mcp_state != mcp_lastState);
+        if (mcp_changed) mcp_lastChange = ms;
     }
-    m_time = ms;
-    return m_state;
+    mcp_time = ms;
+    return mcp_state;
 }
 
 /*----------------------------------------------------------------------*
@@ -48,14 +48,14 @@ bool Button::read()
  * read, and return false (0) or true (!=0) accordingly.                *
  * These functions do not cause the button to be read.                  *
  *----------------------------------------------------------------------*/
-bool Button::isPressed()
+bool MCP23017_Button::isPressed()
 {
-    return m_state;
+    return mcp_state;
 }
 
-bool Button::isReleased()
+bool MCP23017_Button::isReleased()
 {
-    return !m_state;
+    return !mcp_state;
 }
 
 /*----------------------------------------------------------------------*
@@ -64,14 +64,14 @@ bool Button::isReleased()
  * true (!=0) accordingly.                                              *
  * These functions do not cause the button to be read.                  *
  *----------------------------------------------------------------------*/
-bool Button::wasPressed()
+bool MCP23017_Button::wasPressed()
 {
-    return m_state && m_changed;
+    return mcp_state && mcp_changed;
 }
 
-bool Button::wasReleased()
+bool MCP23017_Button::wasReleased()
 {
-    return !m_state && m_changed;
+    return !mcp_state && mcp_changed;
 }
 
 /*----------------------------------------------------------------------*
@@ -80,21 +80,21 @@ bool Button::wasReleased()
  * time in milliseconds. Returns false (0) or true (!=0) accordingly.   *
  * These functions do not cause the button to be read.                  *
  *----------------------------------------------------------------------*/
-bool Button::pressedFor(uint32_t ms)
+bool MCP23017_Button::pressedFor(uint32_t ms)
 {
-    return m_state && m_time - m_lastChange >= ms;
+    return mcp_state && mcp_time - mcp_lastChange >= ms;
 }
 
-bool Button::releasedFor(uint32_t ms)
+bool MCP23017_Button::releasedFor(uint32_t ms)
 {
-    return !m_state && m_time - m_lastChange >= ms;
+    return !mcp_state && mcp_time - mcp_lastChange >= ms;
 }
 
 /*----------------------------------------------------------------------*
  * lastChange() returns the time the button last changed state,         *
  * in milliseconds.                                                     *
  *----------------------------------------------------------------------*/
-uint32_t Button::lastChange()
+uint32_t MCP23017_Button::lastChange()
 {
-    return m_lastChange;
+    return mcp_lastChange;
 }
