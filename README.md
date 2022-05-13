@@ -1,5 +1,5 @@
 # Arduino Button Library
-https://github.com/JChristensen/JC_Button  
+https://github.com/Cobalt6700/JC_Button_MCP23017  
 README file  
 
 ## License
@@ -18,6 +18,9 @@ The simplest way to use a button with an AVR microcontroller is to wire the butt
 
 A derived class, ToggleButton, implements button objects that need only "push-on, push-off" functionality.
 
+This libary has been expanded to work with the MCP23017. Tested with an I2C device. It uses the same code, but adds the class "MCP23017_Button".
+The original code is unaffected, allowing you to use both Arduino pin Buttons and MCP pin buttons. 
+
 ## Examples
 The following example sketches are included with the **Button** library:
 
@@ -27,7 +30,7 @@ The following example sketches are included with the **Button** library:
 - **Toggle**: Demonstrates ToggleButton functionality.
 
 
-## Constructors
+## Button Constructors
 
 ### Button(pin, dbTime, puEnable, invert)
 ##### Description
@@ -82,6 +85,61 @@ ToggleButton myToggle(3, true, 50);
 // a button wired from the MCU pin to Vcc with an external pull-down resistor,
 // initial state is off.
 Button myButton(4, false, 25, false, false);
+
+```
+## MCP23017_Button Constructors
+
+### MCP23017_Button(MCP_name, pin, dbTime, puEnable, invert)
+##### Description
+The constructor defines a MCP23017_button object.
+##### Syntax
+`Button(MCP_name, pin, dbTime, puEnable, invert);`
+##### Required parameter
+**MCP_name:** MCP class name name used to initalise the MCP controller  *(byte)*  
+**pin:** Arduino pin number that the button is connected to *(byte)*  
+##### Optional parameters
+**dbTime:** Debounce time in milliseconds. Defaults to 25ms if not given. *(unsigned long)*  
+**puEnable:** *true* to enable the microcontroller's internal pull-up resistor, else *false*. Defaults to *true* if not given. *(bool)*  
+**invert:** *false* Sets the MCP to a high logic level to mean the button is pressed, *true* Sets the MCP to a a low level as pressed. *true* should be used to enable the internal MCP pull-up resistor, *false* for an external pull-down resistor. Defaults to *true* if not given. *(bool)*
+##### Returns
+None.
+##### Example
+```c++
+// button connected from pin 2 to ground, 25ms debounce, pullup enabled, logic inverted
+MCP23017_Button myButton(mcp, 2);
+
+// same as above but this button needs a longer debounce time (50ms)
+MCP23017_Button myButton(mcp, 3, 50);
+
+// a button wired from the MCP pin to Vcc with an external pull-down resistor
+MCP23017_Button myButton(mcp, 4, 25, false, false);
+
+```
+
+### MCP23017_ToggleButton(MCP_name, pin, initialState, dbTime, puEnable, invert)
+##### Description
+The constructor defines a toggle button object, which has "push-on, push-off" functionality. The initial state can be on or off. See the section, [ToggleButton Library Functions](https://github.com/Cobalt6700/JC_Button_MCP23017#togglebutton-library-functions) for functions that apply specifically to the ToggleButton object. The ToggleButton class is derived from the Button class, so all Button functions are available, but because it is inherently a more limited concept, the special ToggleButton functions will be most useful, along with `begin()` and `read()`.
+##### Syntax
+`MCP23017_ToggleButton(MCP_name, pin, initialState, dbTime, puEnable, invert);`
+##### Required parameter
+**MCP_name:** MCP class name name used to initalise the MCP controller  *(byte)* 
+**pin:** Arduino pin number that the button is connected to *(byte)*  
+##### Optional parameters
+**initialState:** Initial state for the button. Defaults to off (false) if not given. *(bool)*  
+**dbTime:** Debounce time in milliseconds. Defaults to 25ms if not given. *(unsigned long)*  
+**puEnable:** *true* to enable the microcontroller's internal pull-up resistor, else *false*. Defaults to *true* if not given. *(bool)*  
+**invert:** *false* Sets the MCP to a high logic level to mean the button is pressed, *true* Sets the MCP to a a low level as pressed. *true* should be used to enable the internal MCP pull-up resistor, *false* for an external pull-down resistor. Defaults to *true* if not given. *(bool)*
+##### Returns
+None.
+##### Example
+```c++
+// button connected from pin 2 to ground, initial state off,
+// 25ms debounce, pullup enabled, logic inverted
+MCP23017_ToggleButton myToggle(mcp, 2);
+
+// same as above but this button is initially "on" and also
+// needs a longer debounce time (50ms).
+MCP23017_ToggleButton myToggle(mcp, 3, true, 50);
 
 ```
 

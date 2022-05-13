@@ -7,7 +7,7 @@
 #define JC_BUTTON_MCP23017_H_INCLUDED
 
 #include <Arduino.h>
-#include <MCP23017.h>
+#include <MCP23017.h> // https://github.com/blemasle/arduino-mcp23017
 
 
 class Button
@@ -117,6 +117,7 @@ class MCP23017_Button
         // MCP23017_Button(MCP name, pin, dbTime, puEnable, invert) instantiates a button object.
         //
         // Required parameter:
+        // MCP name The instance of the MCP you want to use
         // pin      The MCP23017 pin the button is connected to
         //
         // Optional parameters:
@@ -163,11 +164,11 @@ class MCP23017_Button
         uint32_t lastChange();
 
     private:
-        MCP23017& mcp_register;
-        uint8_t mcp_pin;          // arduino pin number connected to button
+        MCP23017& mcp_register;   // get the instance of the MCP we want to use
+        uint8_t mcp_pin;          // MCP pin number connected to button
         uint32_t mcp_dbTime;      // debounce time (ms)
         bool mcp_puEnable;        // internal pullup resistor enabled
-        bool mcp_invert;          // if true, interpret logic low as pressed, else interpret logic high as pressed
+        bool mcp_invert;          // if true, set MCP logic low as pressed, else set MCP logic high as pressed
         bool mcp_state;           // current button state, true=pressed
         bool mcp_lastState;       // previous button state
         bool mcp_changed;         // state changed since last read

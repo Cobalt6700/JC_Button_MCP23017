@@ -99,14 +99,17 @@ uint32_t Button::lastChange()
     return m_lastChange;
 }
 
+//#######################################################################
+
+
 /*----------------------------------------------------------------------*
-/ initialize a Button object and the pin it's connected to.             *
+/ initialize a MCP23017_Button object and the pin it's connected to.             *
 /-----------------------------------------------------------------------*/
 void MCP23017_Button::begin()
 {
     mcp_register.pinMode(mcp_pin, mcp_puEnable ? INPUT_PULLUP : INPUT, mcp_invert);
     mcp_state = mcp_register.digitalRead(mcp_pin);
-    //if (mcp_invert) mcp_state = !mcp_state;
+    //if (mcp_invert) mcp_state = !mcp_state; //Software invert moved to hardware invert on MCP23017
     mcp_time = millis();
     mcp_lastState = mcp_state;
     mcp_changed = false;
@@ -121,7 +124,7 @@ bool MCP23017_Button::read()
 {
     uint32_t ms = millis();
     bool pinVal = mcp_register.digitalRead(mcp_pin);
-    //if (mcp_invert) pinVal = !pinVal;
+    //if (mcp_invert) pinVal = !pinVal; //Software invert moved to hardware invert on MCP23017
     if (ms - mcp_lastChange < mcp_dbTime)
     {
         mcp_changed = false;

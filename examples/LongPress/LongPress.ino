@@ -1,31 +1,43 @@
 // Arduino Button Library
-// https://github.com/JChristensen/JC_Button
+// https://github.com/Cobalt6700/JC_Button_MCP23017
 // Copyright (C) 2018 by Jack Christensen and licensed under
 // GNU GPL v3.0, https://www.gnu.org/licenses/gpl.html
 //
 // Example sketch demonstrating short and long button presses.
 //
 // A simple state machine where a short press of the button turns the
-// Arduino pin 13 LED on or off, and a long press causes the LED to
-// blink rapidly. Once in rapid blink mode, another long press goes
-// back to on/off mode.
+// Arduino pin 13 LED and MCP Pin 9 on or off, and a long press causes
+// the LED to blink rapidly. Once in rapid blink mode, another long 
+// press goes back to on/off mode.
 
-#include <JC_Button.h>          // https://github.com/JChristensen/JC_Button
+#include <JC_Button_MCP23017.h>          // https://github.com/Cobalt6700/JC_Button_MCP23017
+#include <Wire.h>
+
+#define MCP23017_ADDR 0x20
+MCP23017 mcp = MCP23017(MCP23017_ADDR);
 
 // pin assignments
 const byte
-    BUTTON_PIN(7),              // connect a button switch from this pin to ground
-    LED_PIN(13);                // the standard Arduino "pin 13" LED
+    BUTTON_PIN(0),              // connect a button switch from this pin to ground
+    LED_PIN1(13);               // the standard Arduino "pin 13" LED
+    LED_PIN2(8);                // Pin 9 of MCP23017 - first pin on Port B
 
-Button myBtn(BUTTON_PIN);       // define the button
+MCP23017_Button myBtn(mcp, BUTTON_PIN);       // define the button
 const unsigned long
     LONG_PRESS(1000),           // we define a "long press" to be 1000 milliseconds.
     BLINK_INTERVAL(100);        // in the BLINK state, switch the LED every 100 milliseconds.
 
 void setup()
 {
+    Wire.begin();               // Start I2C
+    mcp.init();                 // Start MCP
+    mcp.portMode(MCP23017Port::B, 0); // Port B as output
+    //mcp.pinMode(LED_PIN2, OUTPUT); // Alternate, MCP Pin 9 as output
+    mcp.writeRegister(MCP23017Register::GPIO_A, 0x00);  //Reset port A 
+    mcp.writeRegister(MCP23017Register::GPIO_B, 0x00);  //Reset port B
     myBtn.begin();              // initialize the button object
-    pinMode(LED_PIN, OUTPUT);   // set the LED pin as an output
+    pinMode(LED_PIN1, OUTPUT);   // set the LED pin as an output
+
 }
 
 // the list of possible states for the state machine. This state machine has a fixed
@@ -71,7 +83,8 @@ void loop()
             if (myBtn.pressedFor(LONG_PRESS))
             {
                 STATE = TO_ONOFF;
-                digitalWrite(LED_PIN, LOW);
+                digitalWrite(LED_PIN1, LOW);
+                mcp.digitalWrite(LED_PIN2, LOW);
                 ledState = false;
             }
             else
@@ -92,7 +105,8 @@ void switchLED()
 {
     msLast = ms;                // record the last switch time
     ledState = !ledState;
-    digitalWrite(LED_PIN, ledState);
+    digitalWrite(LED_PIN1, ledState);
+    mcp.digitalWrite(LED_PIN2, ledState);
 }
 
 // switch the LED on and off every BLINK_INTERVAL milliseconds.
